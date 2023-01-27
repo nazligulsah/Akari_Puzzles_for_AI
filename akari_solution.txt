@@ -1,0 +1,31 @@
+#const n = 6.
+row(1..n).
+column(1..n).
+index(0..4).
+
+numBlack(1,2,1). black(1,5). black(2,2). numBlack(3,4,2). black(3,6). 
+black(4,1). numBlack(4,3,4). numBlack(5,5,0). black(6,2). black(6,5).
+
+black(I,J) :- numBlack(I,J,Z).
+white(I,J) :- not black(I,J), row(I), column(J).
+
+neighbor(I, J, I1, J1) :- |I-I1| + |J-J1| == 1, row(I), row(I1), column(J), column(J1).
+Z{bulb(I1,J1) : neighbor(I, J, I1, J1), white(I1, J1)}Z :- numBlack(I,J,Z), index(Z).
+
+light(X,Y) :- bulb(X, Y1),  white(X,Y), Y1 < Y, {black(X,K) :  Y1 < K , K < Y}0.  %right
+light(X,Y) :- bulb(X, Y1), white(X,Y), Y1 > Y, {black(X,K) :  Y1 > K, K > Y}0. % left
+light(X,Y) :- bulb(X1, Y),  white(X,Y), X1 < X, {black(M,Y) : X1 < M, M < X}0. % up
+light(X,Y) :- bulb(X1, Y),  white(X,Y), X1 > X, {black(M,Y) : X1 > M, M > X}0. % down
+light(X,Y) :- bulb (X,Y).
+
+%For every white cell, generate a bulb such that it is not neighbor of any numBlack square 
+{bulb(X,Y): numBlack(X1, Y1, Z), not neighbor(X1, Y1, X, Y)} :- white(X,Y) ,row(X), column(Y).
+
+:- white(X,Y), not light(X,Y).
+
+:- bulb(X,Y), bulb(X,Y1), Y != Y1, Y<Y1,{black(X,Y2): Y < Y2, Y2 < Y1}0.%right
+:- bulb(X,Y), bulb(X,Y1), Y != Y1, Y>Y1,{black(X,Y2): Y > Y2, Y2 > Y1}0.%left
+:- bulb(X,Y), bulb(X1,Y), X!=X1, X<X1,{black(X2,Y): X < X2, X2 < X1}0.%up
+:- bulb(X,Y), bulb(X1,Y), X!=X1, X>X1,{black(X2,Y): X > X2, X2 > X1}0.%down
+
+#show bulb/2.
